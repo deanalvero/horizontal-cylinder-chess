@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.deanalvero.hcchess.engine.GameEngine
 import io.github.deanalvero.hcchess.model.Board
+import io.github.deanalvero.hcchess.model.GameStatus
+import io.github.deanalvero.hcchess.model.Move
 import io.github.deanalvero.hcchess.model.Player
 import io.github.deanalvero.hcchess.model.Position
 
@@ -18,6 +20,9 @@ class GameViewModel {
         private set
     var validMoves by mutableStateOf<Set<Position>>(emptySet())
         private set
+
+    val gameStatus: GameStatus get() = engine.gameState.status
+    val moveHistory: List<Move> get() = engine.gameState.moveHistory
 
     fun onSquareClicked(position: Position) {
         val selected = selectedPosition
@@ -49,5 +54,11 @@ class GameViewModel {
                 }
             }
         }
+    }
+
+    fun reset() {
+        engine.reset()
+        selectedPosition = null
+        validMoves = emptySet()
     }
 }

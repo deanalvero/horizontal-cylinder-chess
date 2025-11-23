@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.deanalvero.hcchess.model.Board
 import io.github.deanalvero.hcchess.model.GameState
+import io.github.deanalvero.hcchess.model.GameStatus
 import io.github.deanalvero.hcchess.model.Move
 import io.github.deanalvero.hcchess.model.PieceType
 import io.github.deanalvero.hcchess.model.Player
@@ -35,17 +36,41 @@ class GameEngine {
     }
 
     fun onMove(from: Position, to: Position): Boolean {
+        if (gameState.status != GameStatus.ONGOING) return false
+
         val move = currentValidMoves.find {
             it.from == from && it.to == to && (it.promotionType == null || it.promotionType == PieceType.QUEEN)
         } ?: return false
 
         val newBoard = gameState.board.applyMove(move)
+
+        var newStatus = GameStatus.ONGOING
+        if (move.capturedPiece?.type == PieceType.KING) {
+            newStatus = if (gameState.currentPlayer == Player.WHITE) {
+                GameStatus.WHITE_WINS
+            } else {
+                GameStatus.BLACK_WINS
+            }
+        }
+
         gameState = gameState.copy(
             board = newBoard,
             currentPlayer = gameState.currentPlayer.opponent,
-            moveHistory = gameState.moveHistory + move
+            moveHistory = gameState.moveHistory + move,
+            status = newStatus
         )
-        calculateMoves()
+
+        if (newStatus == GameStatus.ONGOING) {
+            calculateMoves()
+        } else {
+            currentValidMoves = emptySet()
+        }
+
         return true
+    }
+
+    fun reset() {
+        gameState = GameState(Board.createDefault(), Player.WHITE)
+        calculateMoves()
     }
 }
