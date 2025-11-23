@@ -38,19 +38,12 @@ fun BoardComposable(viewModel: GameViewModel) {
             title = { Text("Horizontal Cylinder Chess") }
         )
 
-        Row(
-            Modifier.fillMaxWidth().background(Color.White).padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("Turn: ${viewModel.currentPlayer.id}")
-        }
-
         LazyColumn(
             state = listState,
             modifier = Modifier.weight(1f).fillMaxWidth()
         ) {
             items(totalVirtualRows) { index ->
-                val rank = floorMod(index, 14)
+                val rank = floorMod(centerIndex - index, 14)
 
                 Row(Modifier.fillMaxWidth().height(48.dp)) {
                     Box(Modifier.width(24.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
@@ -72,6 +65,13 @@ fun BoardComposable(viewModel: GameViewModel) {
                     }
                 }
             }
+        }
+
+        Row(
+            Modifier.fillMaxWidth().background(Color.White).padding(8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text("Turn: ${viewModel.currentPlayer.id}")
         }
     }
 }

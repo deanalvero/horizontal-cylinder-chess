@@ -4,7 +4,11 @@ A chess variant where the top and bottom ranks are adjacent. An additional row o
 
 This game is built using Compose Multiplatform and it runs on Android, iOS, Web, Desktop (JVM).
 
-## Instructions
+## Play
+
+The WASM build of the game can be played at https://deanalvero.github.io/horizontal-cylinder-chess/.
+
+## Build
 
 ### Android Application
 

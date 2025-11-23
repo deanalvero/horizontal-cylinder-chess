@@ -25,8 +25,9 @@ fun SquareComposable(
     onClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isLight = (position.file + position.rank) % 2 == 0
+    val isLight = (position.file + position.rank) % 2 != 0
     val backgroundColor = if (isLight) Color(0xFFF0D9B5) else Color(0xFFB58863)
+    val textColor = if (isLight) Color(0xFFB58863) else Color(0xFFF0D9B5)
 
     Box(
         modifier = modifier
@@ -44,13 +45,13 @@ fun SquareComposable(
         }
 
         if (piece != null) {
-            PieceView(piece)
+            PieceComposable(piece)
         }
 
         Text(
-            text = "${position}",
+            text = "$position",
             fontSize = 8.sp,
-            color = Color.Gray,
+            color = textColor,
             modifier = Modifier.align(Alignment.TopStart).padding(1.dp)
         )
     }
