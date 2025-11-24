@@ -144,17 +144,17 @@ object MoveValidator {
 
     private fun getCentralPawnMoves(piece: Piece, at: Position, gs: GameState): Set<Move> {
         return if (piece.player == Player.WHITE) {
-            getPawnMoves(piece, at, gs, 1, 2, 8)
+            getPawnMoves(piece, at, gs, 1, 1, 7)
         } else {
-            getPawnMoves(piece, at, gs, -1, 7, 1)
+            getPawnMoves(piece, at, gs, -1, 6, 0)
         }
     }
 
     private fun getWrapPawnMoves(piece: Piece, at: Position, gs: GameState): Set<Move> {
         return if (piece.player == Player.WHITE) {
-            getPawnMoves(piece, at, gs, -1, 0, 8)
+            getPawnMoves(piece, at, gs, -1, 13, 7)
         } else {
-            getPawnMoves(piece, at, gs, 1, 9, 1)
+            getPawnMoves(piece, at, gs, 1, 8, 0)
         }
     }
 

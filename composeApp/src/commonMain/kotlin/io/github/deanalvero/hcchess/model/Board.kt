@@ -36,13 +36,13 @@ data class Board(
             )
 
             for (file in 0..7) {
-                startingPieces[Position(file, 0)] = Piece(Player.WHITE, PieceType.WRAP_PAWN, PawnDirection.DOWN)
-                startingPieces[Position(file, 1)] = Piece(Player.WHITE, majorPieces[file])
-                startingPieces[Position(file, 2)] = Piece(Player.WHITE, PieceType.CENTRAL_PAWN, PawnDirection.UP)
+                startingPieces[Position(file, 13)] = Piece(Player.WHITE, PieceType.WRAP_PAWN, PawnDirection.DOWN)
+                startingPieces[Position(file, 0)] = Piece(Player.WHITE, majorPieces[file])
+                startingPieces[Position(file, 1)] = Piece(Player.WHITE, PieceType.CENTRAL_PAWN, PawnDirection.UP)
 
-                startingPieces[Position(file, 7)] = Piece(Player.BLACK, PieceType.CENTRAL_PAWN, PawnDirection.DOWN)
-                startingPieces[Position(file, 8)] = Piece(Player.BLACK, majorPieces[file])
-                startingPieces[Position(file, 9)] = Piece(Player.BLACK, PieceType.WRAP_PAWN, PawnDirection.UP)
+                startingPieces[Position(file, 6)] = Piece(Player.BLACK, PieceType.CENTRAL_PAWN, PawnDirection.DOWN)
+                startingPieces[Position(file, 7)] = Piece(Player.BLACK, majorPieces[file])
+                startingPieces[Position(file, 8)] = Piece(Player.BLACK, PieceType.WRAP_PAWN, PawnDirection.UP)
             }
             return Board(startingPieces)
         }

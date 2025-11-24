@@ -9,19 +9,29 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +45,10 @@ import io.github.deanalvero.hcchess.ui.MoveHistoryComposable
 @Composable
 fun App() {
     val viewModel = remember { GameViewModel() }
+
+    var isMenuShown by remember { mutableStateOf(false) }
+    var isSourceDialogShown by remember { mutableStateOf(false) }
+
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -43,6 +57,22 @@ fun App() {
                     actions = {
                         IconButton(onClick = { viewModel.reset() }) {
                             Icon(Icons.Default.Refresh, "Restart")
+                        }
+
+                        IconButton(onClick = { isMenuShown = true }) {
+                            Icon(Icons.Default.MoreVert, "More")
+                        }
+                        DropdownMenu(
+                            expanded = isMenuShown,
+                            onDismissRequest = { isMenuShown = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("About") },
+                                onClick = {
+                                    isMenuShown = false
+                                    isSourceDialogShown = true
+                                }
+                            )
                         }
                     }
                 )
@@ -71,7 +101,7 @@ fun App() {
                         BoardComposable(
                             viewModel = viewModel,
                             modifier = Modifier
-                                .width(this@BoxWithConstraints.maxHeight)
+                                .width(this@BoxWithConstraints.maxHeight - 48.dp)
                                 .fillMaxHeight()
                         )
                         Spacer(Modifier.weight(1f))
@@ -97,6 +127,23 @@ fun App() {
                     }
                 )
             }
+        }
+
+        if (isSourceDialogShown) {
+            AlertDialog(
+                onDismissRequest = { isSourceDialogShown = false },
+                confirmButton = {
+                    TextButton(onClick = { isSourceDialogShown = false }) {
+                        Text("OK")
+                    }
+                },
+                title = { Text("About") },
+                text = {
+                    SelectionContainer {
+                        Text("Horizontal Cylinder Chess source code can be found at https://github.com/deanalvero/horizontal-cylinder-chess")
+                    }
+                }
+            )
         }
     }
 }
