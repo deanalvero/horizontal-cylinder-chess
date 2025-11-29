@@ -23,13 +23,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.deanalvero.hcchess.model.GameMode
 import io.github.deanalvero.hcchess.model.GameStatus
 
 @Composable
-fun GameOverDialogComposable(status: GameStatus, onRestart: () -> Unit) {
-    if (status == GameStatus.ONGOING) return
+fun GameOverDialogComposable(viewModel: GameViewModel, onRestart: () -> Unit) {
+    if (viewModel.gameStatus == GameStatus.ONGOING) return
 
-    val message = if (status == GameStatus.WHITE_WINS) "White Wins!" else "Black Wins!"
+    val message = if (viewModel.gameStatus == GameStatus.WHITE_WINS) "White Wins!" else "Black Wins!"
+    val mode = "Game Mode: ${viewModel.gameMode.text}"
 
     Box(
         modifier = Modifier
@@ -44,6 +46,10 @@ fun GameOverDialogComposable(status: GameStatus, onRestart: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(message, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                Text(mode)
+                if (viewModel.gameMode == GameMode.COMPUTER) {
+                    Text("Your Side: ${viewModel.playerSide.text}")
+                }
                 Spacer(Modifier.height(16.dp))
                 Button(onClick = onRestart) {
                     Icon(Icons.Default.Refresh, null)

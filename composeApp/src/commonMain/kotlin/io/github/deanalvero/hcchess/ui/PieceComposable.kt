@@ -32,7 +32,7 @@ fun PieceComposable(
     ) {
         Icon(
             painter = painterResource(piece.type.toDrawableResource()),
-            contentDescription = "${piece.player.id} ${piece.type.name}",
+            contentDescription = "${piece.player.text} ${piece.type.name}",
             tint = pieceTint,
             modifier = Modifier.fillMaxSize().padding(4.dp)
         )

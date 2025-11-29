@@ -9,14 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,7 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,8 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.deanalvero.hcchess.ui.AboutComposable
 import io.github.deanalvero.hcchess.ui.BoardComposable
 import io.github.deanalvero.hcchess.ui.GameOverDialogComposable
+import io.github.deanalvero.hcchess.ui.GameSetupDialogComposable
 import io.github.deanalvero.hcchess.ui.GameViewModel
 import io.github.deanalvero.hcchess.ui.MoveHistoryComposable
 
@@ -46,8 +43,9 @@ import io.github.deanalvero.hcchess.ui.MoveHistoryComposable
 fun App() {
     val viewModel = remember { GameViewModel() }
 
-    var isMenuShown by remember { mutableStateOf(false) }
+    var isDropdownMenuShown by remember { mutableStateOf(false) }
     var isSourceDialogShown by remember { mutableStateOf(false) }
+    var isSetupDialogShown by remember { mutableStateOf(true) }
 
     MaterialTheme {
         Scaffold(
@@ -55,21 +53,24 @@ fun App() {
                 TopAppBar(
                     title = { Text("Horizontal Cylinder Chess") },
                     actions = {
-                        IconButton(onClick = { viewModel.reset() }) {
-                            Icon(Icons.Default.Refresh, "Restart")
-                        }
-
-                        IconButton(onClick = { isMenuShown = true }) {
+                        IconButton(onClick = { isDropdownMenuShown = true }) {
                             Icon(Icons.Default.MoreVert, "More")
                         }
                         DropdownMenu(
-                            expanded = isMenuShown,
-                            onDismissRequest = { isMenuShown = false }
+                            expanded = isDropdownMenuShown,
+                            onDismissRequest = { isDropdownMenuShown = false }
                         ) {
+                            DropdownMenuItem(
+                                text = { Text("New Game") },
+                                onClick = {
+                                    isDropdownMenuShown = false
+                                    isSetupDialogShown = true
+                                }
+                            )
                             DropdownMenuItem(
                                 text = { Text("About") },
                                 onClick = {
-                                    isMenuShown = false
+                                    isDropdownMenuShown = false
                                     isSourceDialogShown = true
                                 }
                             )
@@ -93,7 +94,7 @@ fun App() {
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
-                                text = "Turn: ${viewModel.currentPlayer.id}",
+                                text = "Turn: ${viewModel.currentPlayer.text}",
                                 modifier = Modifier.fillMaxWidth().background(Color(0xFFF0D9B5)),
                                 textAlign = TextAlign.Center
                             )
@@ -116,32 +117,36 @@ fun App() {
                             Modifier.fillMaxWidth().background(Color(0xFFF0D9B5)).padding(8.dp),
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Text("Turn: ${viewModel.currentPlayer.id}")
+                            Text("Turn: ${viewModel.currentPlayer.text}")
                         }
                     }
                 }
                 GameOverDialogComposable(
-                    status = viewModel.gameStatus,
+                    viewModel = viewModel,
                     onRestart = {
                         viewModel.reset()
-                    }
+                    },
                 )
             }
         }
 
+        if (isSetupDialogShown) {
+            GameSetupDialogComposable(
+                onDismiss = { isSetupDialogShown = false },
+                onStartGame = { gameMode, player, difficulty ->
+                    viewModel.startNewGame(gameMode, player, difficulty)
+                    isSetupDialogShown = false
+                }
+            )
+        }
+
         if (isSourceDialogShown) {
-            AlertDialog(
-                onDismissRequest = { isSourceDialogShown = false },
-                confirmButton = {
-                    TextButton(onClick = { isSourceDialogShown = false }) {
-                        Text("OK")
-                    }
+            AboutComposable(
+                onDismiss = {
+                    isSourceDialogShown = false
                 },
-                title = { Text("About") },
-                text = {
-                    SelectionContainer {
-                        Text("Horizontal Cylinder Chess source code can be found at https://github.com/deanalvero/horizontal-cylinder-chess")
-                    }
+                onOk = {
+                    isSourceDialogShown = false
                 }
             )
         }

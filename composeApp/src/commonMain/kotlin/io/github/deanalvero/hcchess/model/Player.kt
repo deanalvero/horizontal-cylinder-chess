@@ -1,6 +1,6 @@
 package io.github.deanalvero.hcchess.model
 
-sealed class Player(val id: String) {
+sealed class Player(val text: String) {
     object WHITE : Player("White")
     object BLACK : Player("Black")
 
