@@ -49,6 +49,7 @@ fun GameOverDialogComposable(viewModel: GameViewModel, onRestart: () -> Unit) {
                 Text(mode)
                 if (viewModel.gameMode == GameMode.COMPUTER) {
                     Text("Your Side: ${viewModel.playerSide.text}")
+                    Text("Difficulty: ${viewModel.difficulty.text}")
                 }
                 Spacer(Modifier.height(16.dp))
                 Button(onClick = onRestart) {

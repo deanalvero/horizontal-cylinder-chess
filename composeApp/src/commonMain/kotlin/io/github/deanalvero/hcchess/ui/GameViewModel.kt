@@ -8,11 +8,13 @@ import io.github.deanalvero.hcchess.bot.EasyBot
 import io.github.deanalvero.hcchess.bot.HardBot
 import io.github.deanalvero.hcchess.bot.MediumBot
 import io.github.deanalvero.hcchess.engine.GameEngine
+import io.github.deanalvero.hcchess.engine.MoveValidator
 import io.github.deanalvero.hcchess.model.Board
 import io.github.deanalvero.hcchess.model.Difficulty
 import io.github.deanalvero.hcchess.model.GameMode
 import io.github.deanalvero.hcchess.model.GameStatus
 import io.github.deanalvero.hcchess.model.Move
+import io.github.deanalvero.hcchess.model.PieceType
 import io.github.deanalvero.hcchess.model.Player
 import io.github.deanalvero.hcchess.model.Position
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +41,12 @@ class GameViewModel {
     var playerSide by mutableStateOf<Player>(Player.WHITE)
         private set
     var difficulty by mutableStateOf(Difficulty.EASY)
+        private set
+
+    var kingInCheckPosition by mutableStateOf<Position?>(null)
+        private set
+
+    var attackingPiecePositions by mutableStateOf<Set<Position>>(emptySet())
         private set
 
     private var botStrategy: BotStrategy = EasyBot()
@@ -77,6 +85,8 @@ class GameViewModel {
                     selectedPosition = null
                     validMoves = emptySet()
 
+                    updateCheckStatus()
+
                     if (gameMode == GameMode.COMPUTER &&
                         gameStatus == GameStatus.ONGOING &&
                         engine.gameState.currentPlayer != playerSide
@@ -108,6 +118,7 @@ class GameViewModel {
             withContext(Dispatchers.Main) {
                 if (move != null) {
                     engine.onMove(move.from, move.to)
+                    updateCheckStatus()
                 }
                 isBotThinking = false
             }
@@ -119,9 +130,52 @@ class GameViewModel {
         selectedPosition = null
         validMoves = emptySet()
         isBotThinking = false
+        kingInCheckPosition = null
+        attackingPiecePositions = emptySet()
 
         if (gameMode == GameMode.COMPUTER && playerSide == Player.BLACK) {
             triggerBotMove()
+        }
+    }
+
+    private fun updateCheckStatus() {
+        val state = engine.gameState
+
+        val victimPlayer = when (state.status) {
+            GameStatus.WHITE_WINS -> Player.BLACK
+            GameStatus.BLACK_WINS -> Player.WHITE
+            else -> state.currentPlayer
+        }
+
+        val kingEntry = state.board.pieces.entries.find {
+            it.value.player == victimPlayer && it.value.type == PieceType.KING
+        }
+
+        if (kingEntry == null) {
+            kingInCheckPosition = null
+            attackingPiecePositions = emptySet()
+            return
+        }
+
+        val kingPos = kingEntry.key
+
+        val attackers = mutableSetOf<Position>()
+        state.board.pieces.forEach { (pos, piece) ->
+            if (piece.player != victimPlayer) {
+                val tempState = state.copy(currentPlayer = piece.player)
+                val moves = MoveValidator.getValidMovesForPiece(piece, pos, tempState)
+                if (moves.any { it.to == kingPos }) {
+                    attackers.add(pos)
+                }
+            }
+        }
+
+        if (attackers.isNotEmpty()) {
+            kingInCheckPosition = kingPos
+            attackingPiecePositions = attackers
+        } else {
+            kingInCheckPosition = null
+            attackingPiecePositions = emptySet()
         }
     }
 }

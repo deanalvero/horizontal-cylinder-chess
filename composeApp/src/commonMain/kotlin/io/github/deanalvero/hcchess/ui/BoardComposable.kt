@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.deanalvero.hcchess.model.Position
@@ -109,12 +110,7 @@ fun InternalBoardComposable(
                 val rank = floorMod(centerIndex - index, 14)
 
                 Row(Modifier.fillMaxWidth().height(squareSize)) {
-                    Box(
-                        Modifier.width(24.dp).fillMaxHeight(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("${rank + 1}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
+                    NumberComposable(rank = rank)
                     for (file in 0..7) {
                         val pos = Position(file, rank)
                         val piece = viewModel.board.getPieceAt(pos)
@@ -124,19 +120,35 @@ fun InternalBoardComposable(
                             piece = piece,
                             isSelected = viewModel.selectedPosition == pos,
                             isPossibleMove = pos in viewModel.validMoves,
+                            isCheck = viewModel.kingInCheckPosition == pos,
+                            isAttacker = pos in viewModel.attackingPiecePositions,
                             onClick = { viewModel.onSquareClicked(it) },
                             modifier = Modifier.weight(1f).fillMaxHeight()
                         )
                     }
-                    Box(
-                        Modifier.width(24.dp).fillMaxHeight(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("${rank + 1}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
+                    NumberComposable(rank = rank)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NumberComposable(rank: Int, whiteStartingRank: Int = 0, blackStartingRank: Int = 7) {
+    Box(
+        Modifier.width(24.dp).fillMaxHeight(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "${rank + 1}",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            textDecoration = if (rank == whiteStartingRank || rank == blackStartingRank) {
+                TextDecoration.Underline
+            } else {
+                null
+            }
+        )
     }
 }
 

@@ -22,12 +22,21 @@ fun SquareComposable(
     piece: Piece?,
     isSelected: Boolean,
     isPossibleMove: Boolean,
+    isCheck: Boolean,
+    isAttacker: Boolean,
     onClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isLight = (position.file + position.rank) % 2 != 0
-    val backgroundColor = if (isLight) Color(0xFFF0D9B5) else Color(0xFFB58863)
+    val baseColor = if (isLight) Color(0xFFF0D9B5) else Color(0xFFB58863)
     val textColor = if (isLight) Color(0xFFB58863) else Color(0xFFF0D9B5)
+
+    val backgroundColor = when {
+        isCheck -> Color(0xFFE53935)
+        isAttacker -> Color(0xFFEF9A9A)
+        isSelected -> Color.Yellow.copy(alpha = 0.5f)
+        else -> baseColor
+    }
 
     Box(
         modifier = modifier
@@ -36,10 +45,6 @@ fun SquareComposable(
             .clickable { onClick(position) },
         contentAlignment = Alignment.Center
     ) {
-        if (isSelected) {
-            Box(Modifier.matchParentSize().background(Color.Yellow.copy(alpha = 0.5f)))
-        }
-
         if (isPossibleMove) {
             Box(Modifier.size(16.dp).background(Color.Green.copy(alpha = 0.5f)))
         }
