@@ -12,7 +12,7 @@ import kotlin.math.abs
 object MoveValidator {
     fun getValidMovesForPiece(piece: Piece, at: Position, gameState: GameState): Set<Move> {
         return when (piece.type) {
-            PieceType.KING -> getKingMoves(piece, at, gameState.board)
+            PieceType.KING -> getKingMoves(piece, at, gameState)
             PieceType.QUEEN -> getQueenMoves(piece, at, gameState.board)
             PieceType.ROOK -> getRookMoves(piece, at, gameState.board)
             PieceType.BISHOP -> getBishopMoves(piece, at, gameState.board)
@@ -62,11 +62,74 @@ object MoveValidator {
         return moves
     }
 
-    private fun getKingMoves(piece: Piece, at: Position, board: Board): Set<Move> {
+    private fun getKingMoves(piece: Piece, at: Position, gameState: GameState): Set<Move> {
         val offsets = listOf(
             -1 to -1, -1 to 0, -1 to 1, 0 to -1, 0 to 1, 1 to -1, 1 to 0, 1 to 1
         )
-        return getSingleMoves(piece, at, board, offsets)
+        val normalMoves = getSingleMoves(piece, at, gameState.board, offsets)
+        val castlingMoves = getCastlingMoves(piece, at, gameState)
+        return normalMoves + castlingMoves
+    }
+
+    private fun getCastlingMoves(piece: Piece, at: Position, gameState: GameState): Set<Move> {
+        val moves = mutableSetOf<Move>()
+
+        if (gameState.hasKingMoved[piece.player] == true) return emptySet()
+        if (isSquareUnderAttack(at, piece.player, gameState)) return emptySet()
+
+        val rank = at.rank
+
+        val shortRookPos = Position(7, rank)
+        if (canCastle(at, shortRookPos, listOf(5, 6), gameState, piece.player)) {
+            val targetPos = Position(6, rank)
+            moves.add(Move(piece.player, at, targetPos, piece, isCastling = true))
+        }
+
+        val longRookPos = Position(0, rank)
+        if (canCastle(at, longRookPos, listOf(1, 2, 3), gameState, piece.player)) {
+            val targetPos = Position(2, rank)
+            moves.add(Move(piece.player, at, targetPos, piece, isCastling = true))
+        }
+        return moves
+    }
+
+    private fun canCastle(
+        kingPos: Position,
+        rookPos: Position,
+        filesToCheck: List<Int>,
+        gameState: GameState,
+        player: Player
+    ): Boolean {
+        val rook = gameState.board.getPieceAt(rookPos)
+        if (rook == null || rook.type != PieceType.ROOK || rook.player != player) return false
+        if (gameState.hasRookMoved[rookPos] == true) return false
+
+        for (file in filesToCheck) {
+            if (gameState.board.getPieceAt(Position(file, kingPos.rank)) != null) return false
+        }
+
+        val direction = if (rookPos.file > kingPos.file) 1 else -1
+        val crossSquare = Position(kingPos.file + direction, kingPos.rank)
+        val landSquare = Position(kingPos.file + (direction * 2), kingPos.rank)
+
+        if (isSquareUnderAttack(crossSquare, player, gameState)) return false
+        if (isSquareUnderAttack(landSquare, player, gameState)) return false
+        return true
+    }
+
+    private fun isSquareUnderAttack(target: Position, defender: Player, gameState: GameState): Boolean {
+        gameState.board.pieces.forEach { (pos, piece) ->
+            if (piece.player != defender) {
+                val moves = if (piece.type == PieceType.KING) {
+                    val offsets = listOf(-1 to -1, -1 to 0, -1 to 1, 0 to -1, 0 to 1, 1 to -1, 1 to 0, 1 to 1)
+                    getSingleMoves(piece, pos, gameState.board, offsets)
+                } else {
+                    getValidMovesForPiece(piece, pos, gameState)
+                }
+                if (moves.any { it.to == target }) return true
+            }
+        }
+        return false
     }
 
     private fun getQueenMoves(piece: Piece, at: Position, board: Board) =

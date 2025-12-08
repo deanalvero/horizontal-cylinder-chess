@@ -53,11 +53,22 @@ class GameEngine {
             }
         }
 
+        val newHasKingMoved = gameState.hasKingMoved.toMutableMap()
+        val newHasRookMoved = gameState.hasRookMoved.toMutableMap()
+
+        if (move.piece.type == PieceType.KING) {
+            newHasKingMoved[move.player] = true
+        } else if (move.piece.type == PieceType.ROOK) {
+            newHasRookMoved[move.from] = true
+        }
+
         gameState = gameState.copy(
             board = newBoard,
             currentPlayer = gameState.currentPlayer.opponent,
             moveHistory = gameState.moveHistory + move,
-            status = newStatus
+            status = newStatus,
+            hasKingMoved = newHasKingMoved,
+            hasRookMoved = newHasRookMoved
         )
 
         if (newStatus == GameStatus.ONGOING) {

@@ -24,6 +24,27 @@ data class Board(
         }
         newPieces[move.to] = newPiece
 
+        if (move.isCastling) {
+            val rank = move.from.rank
+            if (move.to.file == 6) {
+                val rookFrom = Position(7, rank)
+                val rookTo = Position(5, rank)
+                val rook = pieces[rookFrom]
+                if (rook != null) {
+                    newPieces.remove(rookFrom)
+                    newPieces[rookTo] = rook
+                }
+            } else if (move.to.file == 2) {
+                val rookFrom = Position(0, rank)
+                val rookTo = Position(3, rank)
+                val rook = pieces[rookFrom]
+                if (rook != null) {
+                    newPieces.remove(rookFrom)
+                    newPieces[rookTo] = rook
+                }
+            }
+        }
+
         return this.copy(pieces = newPieces)
     }
 
