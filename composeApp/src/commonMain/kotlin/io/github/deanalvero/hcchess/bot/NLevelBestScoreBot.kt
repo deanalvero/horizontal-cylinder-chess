@@ -89,7 +89,7 @@ open class NLevelBestScoreBot(val searchDepth: Int) : BotStrategy {
             }
             return ScoredMove(bestMove, maxWhiteScore)
         } else {
-            var maxBlackScore = Int.MAX_VALUE
+            var minBlackScore = Int.MAX_VALUE
             for (move in validMoves) {
                 if (depth == searchDepth) yield()
 
@@ -112,14 +112,14 @@ open class NLevelBestScoreBot(val searchDepth: Int) : BotStrategy {
                     isWhitePlayer = true
                 ).score
 
-                if (score < maxBlackScore) {
-                    maxBlackScore = score
+                if (score < minBlackScore) {
+                    minBlackScore = score
                     bestMove = move
                 }
                 currentBlackScore = min(currentBlackScore, score)
                 if (currentBlackScore <= currentWhiteScore) break
             }
-            return ScoredMove(bestMove, maxBlackScore)
+            return ScoredMove(bestMove, minBlackScore)
         }
     }
 
