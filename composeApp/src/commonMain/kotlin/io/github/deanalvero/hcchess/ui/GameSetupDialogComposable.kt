@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.window.DialogProperties
 import io.github.deanalvero.hcchess.model.Difficulty
 import io.github.deanalvero.hcchess.model.GameMode
 import io.github.deanalvero.hcchess.model.Player
@@ -107,10 +108,9 @@ fun GameSetupDialogComposable(
                 Text("Start")
             }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
     )
 }
